@@ -9,6 +9,10 @@ import os
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
+#user face
+user_face_path = os.path.join(current_directory, 'user_face2.jpg')
+user_face = cv2.imread(user_face_path, -1)
+
 # Load the jewellery image
 jewellery_img_path = os.path.join(current_directory, 'jewellery8.png')
 jewellery_img = cv2.imread(jewellery_img_path, -1)
@@ -23,10 +27,12 @@ predictor = dlib.shape_predictor(predictor_path)
 
 def overlay_jewellery(request):
     
-    frame_bytes = request.data.get('frame')
-    nparr = np.frombuffer(frame_bytes.read(), np.uint8)
-    frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    #frame_bytes = request.data.get('frame')
+    #nparr = np.frombuffer(frame_bytes.read(), np.uint8)
+    #frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
+    frame = user_face
+    
     faces = detector(frame, 0)
 
     # Loop through each face and overlay the jewellery
@@ -54,6 +60,21 @@ def overlay_jewellery(request):
                 if resized_jewellery[i,j][3] != 0:
                     frame[jewellery_y+i, jewellery_x+j] = resized_jewellery[i,j][:3]
 
-    retval, buffer = cv2.imencode('.jpg', frame)
-    response = Response(buffer.tobytes(), content_type='image/jpeg')
-    return response
+    #retval, buffer = cv2.imencode('.jpg', frame)
+    #response = Response(buffer.tobytes(), content_type='image/jpeg')
+
+    # Resize the frame to match the output window size
+    height, width = frame.shape[:2]
+    frame = cv2.resize(frame, (int(width/2), int(height/2)))
+
+    # Generate a unique file name for the image
+    file_name = 'output_image.jpg'
+
+    # Build the full file path
+    file_path = os.path.join(current_directory, file_name)
+
+    # Save the image frame to a file
+    cv2.imwrite(file_path, frame)
+    
+    return
+    #return response 
