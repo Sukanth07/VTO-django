@@ -5,13 +5,18 @@ from rest_framework.response import Response
 import cv2
 import numpy as np
 import dlib
+import os
 
-#Load the jewellery image
-jewellery_img = cv2.imread('jewellery8.png', -1)
+current_directory = os.path.dirname(os.path.abspath(__file__))
 
-#Initialize the face detector and landmark predictor
+# Load the jewellery image
+jewellery_img_path = os.path.join(current_directory, 'jewellery8.png')
+jewellery_img = cv2.imread(jewellery_img_path, -1)
+
+# Initialize the face detector and landmark predictor
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
+predictor_path = os.path.join(current_directory, 'shape_predictor_68_face_landmarks.dat')
+predictor = dlib.shape_predictor(predictor_path)
 
 # Create your views here.
 @api_view(['POST'])
