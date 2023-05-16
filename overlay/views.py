@@ -10,8 +10,8 @@ import os
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
 #user face
-user_face_path = os.path.join(current_directory, 'user_face2.jpg')
-user_face = cv2.imread(user_face_path, -1)
+#user_face_path = os.path.join(current_directory, 'user_face2.jpg')
+#user_face = cv2.imread(user_face_path, -1)
 
 # Load the jewellery image
 jewellery_img_path = os.path.join(current_directory, 'jewellery8.png')
@@ -30,6 +30,9 @@ def overlay_jewellery(request):
     #frame_bytes = request.data.get('frame')
     #nparr = np.frombuffer(frame_bytes.read(), np.uint8)
     #frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    
+    user_face = request.data.get('url')
+    
 
     frame = user_face
     
@@ -59,22 +62,24 @@ def overlay_jewellery(request):
             for j in range(jewellery_width):
                 if resized_jewellery[i,j][3] != 0:
                     frame[jewellery_y+i, jewellery_x+j] = resized_jewellery[i,j][:3]
-
-    #retval, buffer = cv2.imencode('.jpg', frame)
-    #response = Response(buffer.tobytes(), content_type='image/jpeg')
-
+        
     # Resize the frame to match the output window size
     height, width = frame.shape[:2]
     frame = cv2.resize(frame, (int(width/2), int(height/2)))
 
+    retval, buffer = cv2.imencode('.jpg', frame)
+    response = HttpResponse(buffer.tobytes(), content_type='image/jpeg')
+
+    return response     
+
     # Generate a unique file name for the image
-    file_name = 'output_image.jpg'
+    #file_name = 'output_image.jpg'
 
     # Build the full file path
-    file_path = os.path.join(current_directory, file_name)
+    #file_path = os.path.join(current_directory, file_name)
 
     # Save the image frame to a file
-    cv2.imwrite(file_path, frame)
+    #cv2.imwrite(file_path, frame)
     
-    return
-    #return response 
+    #return
+    
