@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import dlib
 import os
+from django.views.decorators.csrf import csrf_exempt
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -22,7 +23,10 @@ detector = dlib.get_frontal_face_detector()
 predictor_path = os.path.join(current_directory, 'shape_predictor_68_face_landmarks.dat')
 predictor = dlib.shape_predictor(predictor_path)
 
+
+
 # Create your views here.
+@csrf_exempt
 @api_view(['POST'])
 
 def overlay_jewellery(request):
@@ -31,7 +35,7 @@ def overlay_jewellery(request):
     #nparr = np.frombuffer(frame_bytes.read(), np.uint8)
     #frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     
-    user_face = request.data.get('url')
+    user_face = request.POST.get('url')
     
 
     frame = user_face
