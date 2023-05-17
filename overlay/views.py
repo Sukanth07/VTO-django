@@ -1,36 +1,37 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import cv2
 import numpy as np
 import dlib
-from django.views.decorators.csrf import csrf_exempt
 import os
 
 # Create your views here.
 @csrf_exempt
 @api_view(['POST'])
-
 def overlay_jewellery(request):
     
-    user_face = request.POST.get('user_face')
-    jewellery_img = request.POST.get('jewellery')
+    # Get the user's face image and jewellery image from the request data
+    user_face = request.data.get('user_face')
+    jewellery_img = request.data.get('jewellery')
     
     # Initialize the face detector and landmark predictor
     detector = dlib.get_frontal_face_detector()
     predictor_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'shape_predictor_68_face_landmarks.dat')
     predictor = dlib.shape_predictor(predictor_path)
     
+    # Convert the base64-encoded images to numpy arrays
+    user_face = cv2.imdecode(np.fromstring(user_face, np.uint8), cv2.IMREAD_COLOR)
+    jewellery_img = cv2.imdecode(np.fromstring(jewellery_img, np.uint8), cv2.IMREAD_UNCHANGED)
 
-    frame = user_face
-    
-    faces = detector(frame, 0)
+    # Detect faces in the user's face image
+    faces = detector(user_face, 0)
 
     # Loop through each face and overlay the jewellery
     for face in faces:
         # Detect facial landmarks
-        landmarks = predictor(frame, face)
+        landmarks = predictor(user_face, face)
 
         chin_point = landmarks.part(8)
         neck_point = landmarks.part(5)
@@ -50,26 +51,22 @@ def overlay_jewellery(request):
         for i in range(jewellery_height):
             for j in range(jewellery_width):
                 if resized_jewellery[i,j][3] != 0:
-                    frame[jewellery_y+i, jewellery_x+j] = resized_jewellery[i,j][:3]
+                    user_face[jewellery_y+i, jewellery_x+j] = resized_jewellery[i,j][:3]
         
     # Resize the frame to match the output window size
-    height, width = frame.shape[:2]
-    frame = cv2.resize(frame, (int(width/2), int(height/2)))
+    height, width = user_face.shape[:2]
+    user_face = cv2.resize(user_face, (int(width/2), int(height/2)))
     
     # Generate a unique file name for the image
     file_name = 'output_image.jpg'
 
     # Build the full file path
-    #file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)
-
     file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)
     
     # Save the image frame to a file
-    cv2.imwrite(file_path, frame)
+    cv2.imwrite(file_path, user_face)
 
-    return HttpResponse("Image is ready to return")
+    return HttpResponse('Image ready to return')
     # Return the final image as a response
     #with open(file_path, 'rb') as image_file:
-    #    return HttpResponse(image_file.read(), content_type='image/jpeg')  
-
-    
+    #    return HttpResponse(image_file.read(), content_type='image/jpeg')
