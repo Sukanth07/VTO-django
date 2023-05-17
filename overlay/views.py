@@ -73,8 +73,7 @@ def overlay_jewellery(request):
 
     retval, buffer = cv2.imencode('.jpg', frame)
     #response = HttpResponse(buffer.tobytes(), content_type='image/jpeg')
-    response = HttpResponse('Hi')
-    return response     
+    return HttpResponse('Hi')     
 
     # Generate a unique file name for the image
     #file_name = 'output_image.jpg'
