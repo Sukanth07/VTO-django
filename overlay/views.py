@@ -7,18 +7,28 @@ import numpy as np
 import dlib
 import os
 import base64
+import requests
+import io
 
 # Create your views here.
 @csrf_exempt
 @api_view(['POST'])
 def overlay_jewellery(request):
     # Get the user's face image and jewellery image from the request data
-    user_face_data = request.data.get('user_face')
-    jewellery_img_data = request.data.get('jewellery')
+    user_face_link = request.data.get('user_face')
+    jewellery_img_link = request.data.get('jewellery')
 
-    # Convert the base64-encoded images to numpy arrays
-    user_face = cv2.imdecode(np.frombuffer(base64.b64decode(user_face_data), np.uint8), cv2.IMREAD_COLOR)
-    jewellery_img = cv2.imdecode(np.frombuffer(base64.b64decode(jewellery_img_data), np.uint8), cv2.IMREAD_UNCHANGED)
+    # Download the user's face image from Firebase
+    user_face_response = requests.get(user_face_link)
+    user_face_data = user_face_response.content
+    
+    # Download the jewellery image from Firebase
+    jewellery_img_response = requests.get(jewellery_img_link)
+    jewellery_img_data = jewellery_img_response.content
+    
+    # Decode the image data using OpenCV
+    user_face = cv2.imdecode(np.frombuffer(user_face_data, np.uint8), -1)
+    jewellery_img = cv2.imdecode(np.frombuffer(jewellery_img_data, np.uint8), -1)
     
     # Initialize the face detector and landmark predictor
     detector = dlib.get_frontal_face_detector()
