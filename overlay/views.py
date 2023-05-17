@@ -66,6 +66,7 @@ def overlay_jewellery(request):
     # Save the image frame to a file
     cv2.imwrite(file_path, user_face)
 
+    return HttpResponse('Image ready to return')
     # Return the final image as a response
-    with open(file_path, 'rb') as image_file:
-        return HttpResponse(image_file.read(), content_type='image/jpeg')
+    #with open(file_path, 'rb') as image_file:
+    #    return HttpResponse(image_file.read(), content_type='image/jpeg')
