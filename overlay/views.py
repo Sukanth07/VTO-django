@@ -6,27 +6,24 @@ import cv2
 import numpy as np
 import dlib
 import os
+import base64
 
 # Create your views here.
 @csrf_exempt
 @api_view(['POST'])
 def overlay_jewellery(request):
-    
     # Get the user's face image and jewellery image from the request data
-    user_face = request.data.get('user_face')
-    jewellery_img = request.data.get('jewellery')
+    user_face_data = request.data.get('user_face')
+    jewellery_img_data = request.data.get('jewellery')
+
+    # Convert the base64-encoded images to numpy arrays
+    user_face = cv2.imdecode(np.frombuffer(base64.b64decode(user_face_data), np.uint8), cv2.IMREAD_COLOR)
+    jewellery_img = cv2.imdecode(np.frombuffer(base64.b64decode(jewellery_img_data), np.uint8), cv2.IMREAD_UNCHANGED)
     
     # Initialize the face detector and landmark predictor
     detector = dlib.get_frontal_face_detector()
     predictor_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'shape_predictor_68_face_landmarks.dat')
     predictor = dlib.shape_predictor(predictor_path)
-    
-    # Convert the base64-encoded images to numpy arrays
-    #user_face = cv2.imdecode(np.fromstring(user_face, np.uint8), cv2.IMREAD_COLOR)
-    #jewellery_img = cv2.imdecode(np.fromstring(jewellery_img, np.uint8), cv2.IMREAD_UNCHANGED)
-
-    user_face = cv2.imread(user_face,-1)
-    jewellery_img = cv2.imread(jewellery_img,-1)
 
     # Detect faces in the user's face image
     faces = detector(user_face, 0)
@@ -53,23 +50,22 @@ def overlay_jewellery(request):
         # Overlay the jewellery on the neck region
         for i in range(jewellery_height):
             for j in range(jewellery_width):
-                if resized_jewellery[i,j][3] != 0:
-                    user_face[jewellery_y+i, jewellery_x+j] = resized_jewellery[i,j][:3]
-        
+                if resized_jewellery[i, j][3] != 0:
+                    user_face[jewellery_y + i, jewellery_x + j] = resized_jewellery[i, j][:3]
+
     # Resize the frame to match the output window size
     height, width = user_face.shape[:2]
-    user_face = cv2.resize(user_face, (int(width/2), int(height/2)))
-    
+    user_face = cv2.resize(user_face, (int(width / 2), int(height / 2)))
+
     # Generate a unique file name for the image
     file_name = 'output_image.jpg'
 
     # Build the full file path
     file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)
-    
+
     # Save the image frame to a file
     cv2.imwrite(file_path, user_face)
 
-    return HttpResponse('Image ready to return')
     # Return the final image as a response
-    #with open(file_path, 'rb') as image_file:
-    #    return HttpResponse(image_file.read(), content_type='image/jpeg')
+    with open(file_path, 'rb') as image_file:
+        return HttpResponse(image_file.read(), content_type='image/jpeg')
