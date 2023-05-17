@@ -6,13 +6,14 @@ import cv2
 import numpy as np
 import dlib
 from django.views.decorators.csrf import csrf_exempt
-import os
+#import os
 
 #current_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Initialize the face detector and landmark predictor
 detector = dlib.get_frontal_face_detector()
-predictor_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'shape_predictor_68_face_landmarks.dat')
+#predictor_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'shape_predictor_68_face_landmarks.dat')
+predictor_path = 'VTO_DJANGO/overlay/shape_predictor_68_face_landmarks.dat'
 predictor = dlib.shape_predictor(predictor_path)
 
 
@@ -64,8 +65,10 @@ def overlay_jewellery(request):
     file_name = 'output_image.jpg'
 
     # Build the full file path
-    file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)
+    #file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)
 
+    file_path = 'VTO_DJANGO/overlay/' + file_name
+    
     # Save the image frame to a file
     cv2.imwrite(file_path, frame)
 
