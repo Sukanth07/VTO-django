@@ -5,18 +5,10 @@ from rest_framework.response import Response
 import cv2
 import numpy as np
 import dlib
-import os
 from django.views.decorators.csrf import csrf_exempt
+import os
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
-
-#user face
-#user_face_path = os.path.join(current_directory, 'user_face2.jpg')
-#user_face = cv2.imread(user_face_path, -1)
-
-# Load the jewellery image
-jewellery_img_path = os.path.join(current_directory, 'jewellery8.png')
-jewellery_img = cv2.imread(jewellery_img_path, -1)
 
 # Initialize the face detector and landmark predictor
 detector = dlib.get_frontal_face_detector()
@@ -31,11 +23,8 @@ predictor = dlib.shape_predictor(predictor_path)
 
 def overlay_jewellery(request):
     
-    #frame_bytes = request.data.get('frame')
-    #nparr = np.frombuffer(frame_bytes.read(), np.uint8)
-    #frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    
-    user_face = request.POST.get('url')
+    user_face = request.POST.get('user_face')
+    jewellery_img = request.POST.get('jewellery')
     
 
     frame = user_face
@@ -70,19 +59,18 @@ def overlay_jewellery(request):
     # Resize the frame to match the output window size
     height, width = frame.shape[:2]
     frame = cv2.resize(frame, (int(width/2), int(height/2)))
-
-    retval, buffer = cv2.imencode('.jpg', frame)
-    #response = HttpResponse(buffer.tobytes(), content_type='image/jpeg')
-    return HttpResponse('Hi')     
-
+    
     # Generate a unique file name for the image
-    #file_name = 'output_image.jpg'
+    file_name = 'output_image.jpg'
 
     # Build the full file path
-    #file_path = os.path.join(current_directory, file_name)
+    file_path = os.path.join(current_directory, file_name)
 
     # Save the image frame to a file
-    #cv2.imwrite(file_path, frame)
-    
-    #return
+    cv2.imwrite(file_path, frame)
+
+    retval, buffer = cv2.imencode('.jpg', frame)
+    return HttpResponse('Ready to return the final image')
+    #return HttpResponse(buffer.tobytes(), content_type='image/jpeg')  
+
     
