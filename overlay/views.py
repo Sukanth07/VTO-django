@@ -22,8 +22,11 @@ def overlay_jewellery(request):
     predictor = dlib.shape_predictor(predictor_path)
     
     # Convert the base64-encoded images to numpy arrays
-    user_face = cv2.imdecode(np.fromstring(user_face, np.uint8), cv2.IMREAD_COLOR)
-    jewellery_img = cv2.imdecode(np.fromstring(jewellery_img, np.uint8), cv2.IMREAD_UNCHANGED)
+    #user_face = cv2.imdecode(np.fromstring(user_face, np.uint8), cv2.IMREAD_COLOR)
+    #jewellery_img = cv2.imdecode(np.fromstring(jewellery_img, np.uint8), cv2.IMREAD_UNCHANGED)
+
+    user_face = cv2.imread(user_face,-1)
+    jewellery_img = cv2.imread(jewellery_img,-1)
 
     # Detect faces in the user's face image
     faces = detector(user_face, 0)
