@@ -79,6 +79,9 @@ def overlay_jewellery(request):
     with open(file_path, 'rb') as image_file:
         return HttpResponse(image_file.read(), content_type='image/jpeg')
 
+@csrf_exempt
+@api_view(['POST'])
+
 def overlay_earrings(request):
     # Get the user's face image and earrings image from the request data
     user_face_link = request.data.get('user_face')
