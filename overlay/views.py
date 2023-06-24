@@ -174,16 +174,14 @@ def overlay_earrings(request):
 @api_view(['POST'])
 
 def face_shape(request):
-
-    try:    
+    try:
         # Get the user's face image and earrings image from the request data
         user_face_link = request.data.get('user_face')
 
         # Download the user's face image from Firebase
         user_face_response = requests.get(user_face_link)
         user_face = user_face_response.content
-        
-        
+
         # Load the trained model
         model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model.pkl')
         with open(model_path, "rb") as file:
@@ -191,19 +189,19 @@ def face_shape(request):
             
         IMG_SIZE = (100, 100)
         CATEGORIES = ["heart", "oblong", "oval", "round", "square"]
-        
+
         # Load and preprocess the new image
-        
-        new_image = cv2.imread(user_face, cv2.IMREAD_GRAYSCALE)
+        nparr = np.frombuffer(user_face, np.uint8)
+        new_image = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
         new_image = cv2.resize(new_image, IMG_SIZE)
         new_X = np.array(new_image).reshape(1, -1)
 
         # Predict the face shape
         predicted_label = model.predict(new_X)
         predicted_face_shape = CATEGORIES[predicted_label[0]]
-
+        
         # Return the response
-        return HttpResponse(predicted_face_shape)
-    
+        return HttpResponse(str(predicted_face_shape))
+
     except Exception as e:
         return HttpResponse(f"Error : {type(e).__name__}")
