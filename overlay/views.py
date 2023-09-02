@@ -112,7 +112,7 @@ def overlay_earrings(request):
 
     #-----------------------------------------------------   
 
-        def overlay_earring(image, earring_image, landmarks, start_point, end_point):
+        def process_earring(image, earring_image, landmarks, start_point, end_point):
             # Calculate the size of the earring
             earring_height = int(abs(end_point.y - start_point.y)) + 30
             earring_width = int(earring_height * earring_image.shape[1] / earring_image.shape[0]) + 5
@@ -149,8 +149,8 @@ def overlay_earrings(request):
             right_ear_end = landmarks.part(14)
 
             # Overlay earrings on each ear
-            user_face = overlay_earring(user_face, earrings_img, landmarks, left_ear_start, left_ear_end)
-            user_face = overlay_earring(user_face, earrings_img, landmarks, right_ear_start, right_ear_end)
+            user_face = process_earring(user_face, earrings_img, landmarks, left_ear_start, left_ear_end)
+            user_face = process_earring(user_face, earrings_img, landmarks, right_ear_start, right_ear_end)
 
         # Resize the frame to match the output window size
         height, width = user_face.shape[:2]
